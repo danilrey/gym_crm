@@ -4,6 +4,7 @@ import com.author.crm.dao.TraineeDao;
 import com.author.crm.dao.TrainerDao;
 import com.author.crm.model.Trainee;
 import com.author.crm.model.Trainer;
+import com.author.crm.model.TrainingType;
 import com.author.crm.service.impl.TraineeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,8 +31,7 @@ class TraineeServiceTest {
     @BeforeEach
     void setUp() {
         traineeService = new TraineeServiceImpl();
-        traineeService.setTraineeDao(traineeDao);
-        traineeService.setTrainerDao(trainerDao);
+        traineeService.setUsernameGenerator(new UsernameGenerator(traineeDao, trainerDao));
     }
 
     @Test
@@ -51,7 +51,7 @@ class TraineeServiceTest {
     void avoidsCollisionWithExistingTrainerUsername() {
         mockDefaultCreation();
         when(trainerDao.findAll()).thenReturn(List.of(
-                new Trainer(1L, "Alice", "Cooper", "Alice.Cooper", "pass123456", true, "Fitness")
+                new Trainer(1L, "Alice", "Cooper", "Alice.Cooper", "pass123456", true, new TrainingType("Fitness"))
         ));
 
         Trainee trainee = traineeService.create(trainee("Alice", "Cooper"));
@@ -63,9 +63,10 @@ class TraineeServiceTest {
     @Test
     void delegatesUpdateDeleteSelectAndSelectAll() {
         Trainee trainee = traineeWithId(1L, "Bob", "Brown");
-        when(traineeDao.update(trainee)).thenReturn(trainee);
+        when(traineeDao.update(trainee)).thenReturn(true);
         when(traineeDao.findById(1L)).thenReturn(Optional.of(trainee));
         when(traineeDao.findAll()).thenReturn(List.of(trainee));
+        when(traineeDao.deleteById(1L)).thenReturn(true);
 
         assertSame(trainee, traineeService.update(trainee));
         traineeService.delete(1L);

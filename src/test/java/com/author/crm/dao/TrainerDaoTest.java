@@ -2,6 +2,7 @@ package com.author.crm.dao;
 
 import com.author.crm.dao.impl.TrainerDaoImpl;
 import com.author.crm.model.Trainer;
+import com.author.crm.model.TrainingType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,18 +51,13 @@ class TrainerDaoTest {
         dao.create(trainer(2L, "Original"));
         Trainer replacement = trainer(2L, "Updated");
 
-        assertSame(replacement, dao.update(replacement));
+        assertTrue(dao.update(replacement));
         assertSame(replacement, dao.findById(2L).orElseThrow());
     }
 
     @Test
     void rejectsUpdateForMissingTrainer() {
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> dao.update(trainer(null, "Missing"))
-        );
-
-        assertEquals("Trainer does not exist: null", exception.getMessage());
+        assertFalse(dao.update(trainer(null, "Missing")));
     }
 
     @Test
@@ -78,13 +74,13 @@ class TrainerDaoTest {
     void returnsEmptyResultsBeforeStorageIsInitialized() {
         TrainerDaoImpl uninitializedDao = new TrainerDaoImpl();
 
-        assertTrue(uninitializedDao.findById(1L).isEmpty());
-        assertTrue(uninitializedDao.findAll().isEmpty());
+        assertThrows(IllegalStateException.class, () -> uninitializedDao.findById(1L));
+        assertThrows(IllegalStateException.class, uninitializedDao::findAll);
         assertThrows(IllegalStateException.class, () -> uninitializedDao.create(trainer(null, "John")));
         assertThrows(IllegalStateException.class, () -> uninitializedDao.update(trainer(1L, "John")));
     }
 
     private Trainer trainer(Long id, String firstName) {
-        return new Trainer(id, firstName, "Doe", firstName + ".Doe", "password", true, "Yoga");
+        return new Trainer(id, firstName, "Doe", firstName + ".Doe", "password", true, new TrainingType("Yoga"));
     }
 }

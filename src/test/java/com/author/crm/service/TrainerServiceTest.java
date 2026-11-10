@@ -4,6 +4,7 @@ import com.author.crm.dao.TraineeDao;
 import com.author.crm.dao.TrainerDao;
 import com.author.crm.model.Trainee;
 import com.author.crm.model.Trainer;
+import com.author.crm.model.TrainingType;
 import com.author.crm.service.impl.TrainerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,8 +30,7 @@ class TrainerServiceTest {
     @BeforeEach
     void setUp() {
         trainerService = new TrainerServiceImpl();
-        trainerService.setTrainerDao(trainerDao);
-        trainerService.setTraineeDao(traineeDao);
+        trainerService.setUsernameGenerator(new UsernameGenerator(traineeDao, trainerDao));
     }
 
     @Test
@@ -62,7 +62,7 @@ class TrainerServiceTest {
     @Test
     void delegatesUpdateSelectAndSelectAll() {
         Trainer trainer = trainerWithId(1L, "Mike", "Tyson");
-        when(trainerDao.update(trainer)).thenReturn(trainer);
+        when(trainerDao.update(trainer)).thenReturn(true);
         when(trainerDao.findById(1L)).thenReturn(Optional.of(trainer));
         when(trainerDao.findAll()).thenReturn(List.of(trainer));
 
@@ -90,7 +90,7 @@ class TrainerServiceTest {
     void keepsExistingUsernameOutOfCollisionCheck() {
         mockDefaultCreation();
         when(trainerDao.findAll()).thenReturn(List.of(
-                new Trainer(1L, "John", "Doe", "John.Doe", "password", true, "Yoga")
+                new Trainer(1L, "John", "Doe", "John.Doe", "password", true, new TrainingType("Yoga"))
         ));
 
         Trainer trainer = trainerService.create(trainer("John", "Doe"));
@@ -119,6 +119,6 @@ class TrainerServiceTest {
     }
 
     private Trainer trainerWithId(Long id, String firstName, String lastName) {
-        return new Trainer(id, firstName, lastName, null, null, true, "Yoga");
+        return new Trainer(id, firstName, lastName, null, null, true, new TrainingType("Yoga"));
     }
 }

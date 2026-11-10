@@ -2,6 +2,7 @@ package com.author.crm.dao;
 
 import com.author.crm.dao.impl.TrainingDaoImpl;
 import com.author.crm.model.Training;
+import com.author.crm.model.TrainingType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -60,12 +61,12 @@ class TrainingDaoTest {
     void returnsEmptyResultsBeforeStorageIsInitialized() {
         TrainingDaoImpl uninitializedDao = new TrainingDaoImpl();
 
-        assertTrue(uninitializedDao.findById(1L).isEmpty());
-        assertTrue(uninitializedDao.findAll().isEmpty());
+        assertThrows(IllegalStateException.class, () -> uninitializedDao.findById(1L));
+        assertThrows(IllegalStateException.class, uninitializedDao::findAll);
         assertThrows(IllegalStateException.class, () -> uninitializedDao.create(training(null, "Cardio")));
     }
 
     private Training training(Long id, String name) {
-        return new Training(id, 1L, 2L, name, "Fitness", LocalDate.of(2026, 1, 1), 45);
+        return new Training(id, 1L, 2L, name, new TrainingType("Fitness"), LocalDate.of(2026, 1, 1), 45);
     }
 }

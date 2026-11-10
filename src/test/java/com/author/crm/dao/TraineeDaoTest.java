@@ -53,28 +53,24 @@ class TraineeDaoTest {
         dao.create(original);
         Trainee replacement = trainee(3L, "Updated");
 
-        assertSame(replacement, dao.update(replacement));
+        assertTrue(dao.update(replacement));
         assertSame(replacement, dao.findById(3L).orElseThrow());
     }
 
     @Test
     void rejectsUpdateForMissingTrainee() {
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> dao.update(trainee(99L, "Missing"))
-        );
-
-        assertEquals("Trainee does not exist: 99", exception.getMessage());
+        assertFalse(dao.update(trainee(99L, "Missing")));
     }
 
     @Test
-    void deletesTraineeAndReturnsEmptyForUnknownId() {
+    void deletesTraineeAndReturnsFalseForUnknownId() {
         Trainee trainee = dao.create(trainee(null, "John"));
 
-        dao.deleteById(trainee.getId());
+        assertTrue(dao.deleteById(trainee.getId()));
 
         verify(storage).remove(trainee.getId());
         assertTrue(dao.findById(trainee.getId()).isEmpty());
+        assertFalse(dao.deleteById(999L));
         assertTrue(dao.findById(999L).isEmpty());
         assertTrue(dao.findAll().isEmpty());
     }
@@ -95,8 +91,8 @@ class TraineeDaoTest {
 
         assertThrows(IllegalStateException.class, () -> uninitializedDao.create(trainee(null, "John")));
         assertThrows(IllegalStateException.class, () -> uninitializedDao.update(trainee(1L, "John")));
-        assertTrue(uninitializedDao.findById(1L).isEmpty());
-        assertTrue(uninitializedDao.findAll().isEmpty());
+        assertThrows(IllegalStateException.class, () -> uninitializedDao.findById(1L));
+        assertThrows(IllegalStateException.class, uninitializedDao::findAll);
     }
 
     private Trainee trainee(Long id, String firstName) {
