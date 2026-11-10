@@ -7,14 +7,14 @@ public class Training {
     private Long traineeId;
     private Long trainerId;
     private String name;
-    private String type;
+    private TrainingType type;
     private LocalDate date;
     private int duration;
 
     public Training() {
     }
 
-    public Training(Long id, Long traineeId, Long trainerId, String name, String type, LocalDate date, int duration) {
+    public Training(Long id, Long traineeId, Long trainerId, String name, TrainingType type, LocalDate date, int duration) {
         this.id = id;
         this.traineeId = traineeId;
         this.trainerId = trainerId;
@@ -56,11 +56,11 @@ public class Training {
         this.name = name;
     }
 
-    public String getType() {
+    public TrainingType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(TrainingType type) {
         this.type = type;
     }
 
