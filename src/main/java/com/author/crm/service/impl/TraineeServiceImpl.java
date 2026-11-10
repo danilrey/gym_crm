@@ -1,10 +1,9 @@
 package com.author.crm.service.impl;
 
 import com.author.crm.dao.TraineeDao;
-import com.author.crm.dao.TrainerDao;
 import com.author.crm.model.Trainee;
-import com.author.crm.service.CredentialGenerator;
 import com.author.crm.service.TraineeService;
+import com.author.crm.service.UsernameGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ public class TraineeServiceImpl implements TraineeService {
     private static final Logger LOG = LoggerFactory.getLogger(TraineeServiceImpl.class);
     private static final String TRAINEE_NOT_FOUND_TEMPLATE = "Trainee not found: %d";
     private TraineeDao dao;
-    private TrainerDao trainerDao;
+    private UsernameGenerator usernameGenerator;
 
     public TraineeServiceImpl() {
     }
@@ -28,29 +27,43 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Autowired
-    public void setTrainerDao(TrainerDao trainerDao) {
-        this.trainerDao = trainerDao;
+    public void setUsernameGenerator(UsernameGenerator usernameGenerator) {
+        this.usernameGenerator = usernameGenerator;
     }
 
     @Override
     public Trainee create(Trainee trainee) {
-        initCredentials(trainee);
-        LOG.info("Creating trainee profile: {}", trainee.getUsername());
+        return usernameGenerator.createWithUniqueUsername(trainee.getFirstName(), trainee.getLastName(), username -> {
+            trainee.setUsername(username);
+            trainee.setPassword(com.author.crm.service.CredentialGenerator.password());
+            LOG.info("Creating trainee profile: {}", username);
 
-        return dao.create(trainee);
+            return dao.create(trainee);
+        });
     }
 
     @Override
     public Trainee update(Trainee trainee) {
         LOG.info("Updating trainee profile: {}", trainee.getId());
 
-        return dao.update(trainee);
+        if (!dao.update(trainee)) {
+            LOG.warn("Cannot update missing trainee profile: {}", trainee.getId());
+
+            throw new IllegalArgumentException(TRAINEE_NOT_FOUND_TEMPLATE.formatted(trainee.getId()));
+        }
+
+        return trainee;
     }
 
     @Override
     public void delete(Long id) {
-        LOG.info("Deleting trainee profile: {}", id);
-        dao.deleteById(id);
+        if (dao.deleteById(id)) {
+            LOG.info("Deleted trainee profile: {}", id);
+        } else {
+            LOG.warn("Cannot delete missing trainee profile: {}", id);
+
+            throw new IllegalArgumentException(TRAINEE_NOT_FOUND_TEMPLATE.formatted(id));
+        }
     }
 
     @Override
@@ -67,21 +80,4 @@ public class TraineeServiceImpl implements TraineeService {
         return dao.findAll();
     }
 
-    private void initCredentials(Trainee trainee) {
-        trainee.setUsername(CredentialGenerator.username(
-                trainee.getFirstName(),
-                trainee.getLastName(),
-                this::isUsernameTaken
-        ));
-        trainee.setPassword(CredentialGenerator.password());
-    }
-
-    private boolean isUsernameTaken(String username) {
-        boolean existsInTrainees = dao.findAll().stream()
-                .anyMatch(t -> t.getUsername() != null && t.getUsername().equalsIgnoreCase(username));
-        boolean existsInTrainers = trainerDao.findAll().stream()
-                .anyMatch(t -> t.getUsername() != null && t.getUsername().equalsIgnoreCase(username));
-
-        return existsInTrainees || existsInTrainers;
-    }
 }
