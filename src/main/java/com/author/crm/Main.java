@@ -5,16 +5,21 @@ import com.author.crm.facade.Facade;
 import com.author.crm.model.Trainee;
 import com.author.crm.model.Trainer;
 import com.author.crm.model.Training;
+import com.author.crm.model.TrainingType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.time.LocalDate;
 
 public class Main {
+    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) {
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class)) {
             Facade facade = context.getBean(Facade.class);
 
-            System.out.println("Gym CRM started");
+            LOG.info("Gym CRM started");
             runDemo(facade);
             printStartupSummary(facade);
         }
@@ -22,7 +27,7 @@ public class Main {
 
     private static void runDemo(Facade facade) {
         Trainer trainer = facade.createTrainer(
-                new Trainer(null, "Ann", "Lourine", null, null, true, "Functional Training")
+                new Trainer(null, "Ann", "Lourine", null, null, true, new TrainingType("Functional Training"))
         );
         Trainee firstTrainee = facade.createTrainee(
                 new Trainee(null, "Mike", "Smith", null, null, true,
@@ -38,26 +43,26 @@ public class Main {
 
         Training training = facade.createTraining(
                 new Training(null, firstTrainee.getId(), trainer.getId(),
-                        "Functional Training Session", "FUNCTIONAL",
+                        "Functional Training Session", new TrainingType("FUNCTIONAL"),
                         LocalDate.now(), 60)
         );
 
-        System.out.printf(
-                "Created trainer %s, trainee %s, and training %s.%n",
+        LOG.info(
+                "Created trainer {}, trainee {}, and training {}.",
                 trainer.getUsername(),
                 facade.selectTraineeProfile(firstTrainee.getId()).getUsername(),
                 facade.selectTrainingProfile(training.getId()).getName()
         );
 
         facade.deleteTrainee(temporaryTrainee.getId());
-        System.out.printf("Deleted temporary trainee with id %d.%n", temporaryTrainee.getId());
+        LOG.info("Deleted temporary trainee with id {}.", temporaryTrainee.getId());
     }
 
     private static void printStartupSummary(Facade facade) {
-        System.out.println("Trainees:");
+        LOG.info("Trainees:");
         for (Trainee trainee : facade.trainees().selectAll()) {
-            System.out.printf(
-                    "   #%d %s %s, username=%s, active=%s, address=%s%n",
+            LOG.info(
+                    "   #{} {} {}, username={}, active={}, address={}",
                     trainee.getId(),
                     trainee.getFirstName(),
                     trainee.getLastName(),
@@ -67,10 +72,10 @@ public class Main {
             );
         }
 
-        System.out.println("Trainers:");
+        LOG.info("Trainers:");
         for (Trainer trainer : facade.trainers().selectAll()) {
-            System.out.printf(
-                    "   #%d %s %s, username=%s, active=%s, specialization=%s%n",
+            LOG.info(
+                    "   #{} {} {}, username={}, active={}, specialization={}",
                     trainer.getId(),
                     trainer.getFirstName(),
                     trainer.getLastName(),
@@ -80,10 +85,10 @@ public class Main {
             );
         }
 
-        System.out.println("Trainings:");
+        LOG.info("Trainings:");
         for (Training training : facade.trainings().selectAll()) {
-            System.out.printf(
-                    "   #%d %s, type=%s, date=%s, duration=%d minutes, traineeId=%d, trainerId=%d%n",
+            LOG.info(
+                    "   #{} {}, type={}, date={}, duration={} minutes, traineeId={}, trainerId={}",
                     training.getId(),
                     training.getName(),
                     training.getType(),

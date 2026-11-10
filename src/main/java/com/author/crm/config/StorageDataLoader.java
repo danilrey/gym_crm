@@ -3,6 +3,7 @@ package com.author.crm.config;
 import com.author.crm.model.Trainee;
 import com.author.crm.model.Trainer;
 import com.author.crm.model.Training;
+import com.author.crm.model.TrainingType;
 import com.author.crm.storage.Storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +79,7 @@ public class StorageDataLoader implements BeanPostProcessor {
                                 p[4],
                                 p[5],
                                 Boolean.parseBoolean(p[6]),
-                                p[7]
+                                new TrainingType(p[7])
                         );
 
                         trainers.put(trainer.getId(), trainer);
@@ -103,7 +104,7 @@ public class StorageDataLoader implements BeanPostProcessor {
                                 Long.valueOf(p[2]),
                                 Long.valueOf(p[3]),
                                 p[4],
-                                p[5],
+                                new TrainingType(p[5]),
                                 LocalDate.parse(p[6]),
                                 Integer.parseInt(p[7])
                         );
