@@ -2,6 +2,7 @@ package com.author.crm.service.impl;
 
 import com.author.crm.dao.TraineeDao;
 import com.author.crm.model.Trainee;
+import com.author.crm.service.CredentialGenerator;
 import com.author.crm.service.TraineeService;
 import com.author.crm.service.UsernameGenerator;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ public class TraineeServiceImpl implements TraineeService {
     public Trainee create(Trainee trainee) {
         return usernameGenerator.createWithUniqueUsername(trainee.getFirstName(), trainee.getLastName(), username -> {
             trainee.setUsername(username);
-            trainee.setPassword(com.author.crm.service.CredentialGenerator.password());
+            trainee.setPassword(CredentialGenerator.password());
             LOG.info("Creating trainee profile: {}", username);
 
             return dao.create(trainee);

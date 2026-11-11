@@ -21,14 +21,7 @@ public class TrainerDaoImpl extends AbstractMapDao<Trainer> implements TrainerDa
     }
 
     @Override
-    public synchronized boolean update(Trainer trainer) {
-        Long id = trainer.getId();
-
-        if (id == null || findById(id).isEmpty()) {
-            return false;
-        }
-        storage().put(id, trainer);
-
-        return true;
+    public boolean update(Trainer trainer) {
+        return updateEntity(trainer);
     }
 }

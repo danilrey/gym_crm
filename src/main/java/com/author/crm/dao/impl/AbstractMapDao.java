@@ -51,6 +51,16 @@ abstract class AbstractMapDao<T> implements CrudDao<T> {
         return new ArrayList<>(storage().values());
     }
 
+    protected final synchronized boolean updateEntity(T entity) {
+        Long id = idGetter.apply(entity);
+
+        if (id == null) {
+            return false;
+        }
+
+        return storage().replace(id, entity) != null;
+    }
+
     protected final void initializeStorage(Map<Long, T> storage) {
         this.storage = Objects.requireNonNull(storage, STORAGE_MUST_BE_CONFIGURED_MESSAGE);
         storage.keySet().stream().filter(Objects::nonNull).mapToLong(Long::longValue).max()

@@ -3,6 +3,8 @@ package com.author.crm.service;
 import com.author.crm.dao.TrainingDao;
 import com.author.crm.dao.TraineeDao;
 import com.author.crm.dao.TrainerDao;
+import com.author.crm.model.Trainee;
+import com.author.crm.model.Trainer;
 import com.author.crm.model.Training;
 import com.author.crm.model.TrainingType;
 import com.author.crm.service.impl.TrainingServiceImpl;
@@ -40,8 +42,8 @@ class TrainingServiceTest {
     @Test
     void delegatesCreateSelectAndSelectAll() {
         Training training = training(1L);
-        when(traineeDao.findById(1L)).thenReturn(Optional.of(new com.author.crm.model.Trainee()));
-        when(trainerDao.findById(2L)).thenReturn(Optional.of(new com.author.crm.model.Trainer()));
+        when(traineeDao.findById(1L)).thenReturn(Optional.of(new Trainee()));
+        when(trainerDao.findById(2L)).thenReturn(Optional.of(new Trainer()));
         when(trainingDao.create(training)).thenReturn(training);
         when(trainingDao.findById(1L)).thenReturn(Optional.of(training));
         when(trainingDao.findAll()).thenReturn(List.of(training));
@@ -79,8 +81,8 @@ class TrainingServiceTest {
     void returnsDaoResultWhenCreatingTraining() {
         Training requested = training(null);
         Training persisted = training(7L);
-        when(traineeDao.findById(1L)).thenReturn(Optional.of(new com.author.crm.model.Trainee()));
-        when(trainerDao.findById(2L)).thenReturn(Optional.of(new com.author.crm.model.Trainer()));
+        when(traineeDao.findById(1L)).thenReturn(Optional.of(new Trainee()));
+        when(trainerDao.findById(2L)).thenReturn(Optional.of(new Trainer()));
         when(trainingDao.create(requested)).thenReturn(persisted);
 
         assertSame(persisted, service.create(requested));

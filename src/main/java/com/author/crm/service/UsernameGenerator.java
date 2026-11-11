@@ -5,12 +5,12 @@ import com.author.crm.dao.TrainerDao;
 import com.author.crm.model.User;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.Set;
 import java.util.Locale;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.Objects;
 
 @Component
 public class UsernameGenerator {

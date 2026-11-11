@@ -21,15 +21,8 @@ public class TraineeDaoImpl extends AbstractMapDao<Trainee> implements TraineeDa
     }
 
     @Override
-    public synchronized boolean update(Trainee trainee) {
-        Long id = trainee.getId();
-
-        if (id == null || findById(id).isEmpty()) {
-            return false;
-        }
-        super.storage().put(id, trainee);
-
-        return true;
+    public boolean update(Trainee trainee) {
+        return updateEntity(trainee);
     }
 
     @Override

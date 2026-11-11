@@ -1,8 +1,8 @@
 package com.author.crm.service.impl;
 
-import com.author.crm.dao.TrainingDao;
 import com.author.crm.dao.TraineeDao;
 import com.author.crm.dao.TrainerDao;
+import com.author.crm.dao.TrainingDao;
 import com.author.crm.model.Training;
 import com.author.crm.service.TrainingService;
 import org.slf4j.Logger;
@@ -44,6 +44,7 @@ public class TrainingServiceImpl implements TrainingService {
     public Training create(Training training) {
         Long traineeId = training.getTraineeId();
         Long trainerId = training.getTrainerId();
+
         if (traineeId == null || traineeDao.findById(traineeId).isEmpty()) {
             throw new IllegalArgumentException(TRAINEE_DOES_NOT_EXIST_TEMPLATE.formatted(traineeId));
         }
@@ -51,6 +52,7 @@ public class TrainingServiceImpl implements TrainingService {
         if (trainerId == null || trainerDao.findById(trainerId).isEmpty()) {
             throw new IllegalArgumentException(TRAINER_DOES_NOT_EXIST_TEMPLATE.formatted(trainerId));
         }
+
         LOG.info("Creating training profile: {}", training.getName());
 
         return dao.create(training);
