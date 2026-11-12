@@ -30,6 +30,7 @@ class TrainerServiceTest {
     @BeforeEach
     void setUp() {
         trainerService = new TrainerServiceImpl();
+        trainerService.setTrainerDao(trainerDao);
         trainerService.setUsernameGenerator(new UsernameGenerator(traineeDao, trainerDao));
     }
 
